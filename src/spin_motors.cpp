@@ -14,10 +14,11 @@ using namespace std;
 RoboteqDevice device;
 int status;
 string response;
+int p = -1;
+int i = -1;
+int d = -1;
 
-/**
- * This tutorial demonstrates simple receipt of messages over the ROS system.
- */
+
 void motorCallback(const std_msgs::Int64::ConstPtr& msg)
 {
   int cmd = msg->data;
@@ -29,7 +30,7 @@ void motorCallback(const std_msgs::Int64::ConstPtr& msg)
     cout<<"succeeded."<<endl;
 
   //Wait 10 ms before sending another command to device
-  sleepms(10);
+  // sleepms(20);
 
   cout<<"- GetValue(_BLSPEED, 1)...";
   if((status = device.GetValue(_BLSPEED, 1, result)) != RQ_SUCCESS)
@@ -38,25 +39,90 @@ void motorCallback(const std_msgs::Int64::ConstPtr& msg)
     cout<<"returned --> "<<result<<endl;
 }
 
+void PCallback(const std_msgs::Int64::ConstPtr& msg)
+{
+  int cmd = msg->data;
+  if(cmd != p){
+    p = cmd;
+    int result;
+    printf("- SetCommand(_KP, 1, %i)...", cmd);
+    if((status = device.SetConfig(_KP, 1, cmd)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  }
+  
+
+  //Wait 10 ms before sending another command to device
+  // sleepms(20);
+
+  // cout<<"- GetConfig(_KP, 1)...";
+  // if((status = device.GetConfig(_KP, 1, result)) != RQ_SUCCESS)
+  //   cout<<"failed --> "<<status<<endl;
+  // else
+  //   cout<<"returned --> "<<result<<endl;
+}
+
+void ICallback(const std_msgs::Int64::ConstPtr& msg)
+{
+  int cmd = msg->data;
+  if(cmd != i) {
+    i = cmd;
+    int result;
+    printf("- SetConfig(_KI, 1, %i)...", cmd);
+    if((status = device.SetConfig(_KI, 1, cmd)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  }
+  
+
+  //Wait 10 ms before sending another command to device
+  // sleepms(20);
+
+  // cout<<"- GetConfig(_KI, 1)...";
+  // if((status = device.GetConfig(_KI, 1, result)) != RQ_SUCCESS)
+  //   cout<<"failed --> "<<status<<endl;
+  // else
+  //   cout<<"returned --> "<<result<<endl;
+}
+
+void DCallback(const std_msgs::Int64::ConstPtr& msg)
+{
+  int cmd = msg->data;
+  if(cmd != d){
+    d = cmd;
+    int result;
+    printf("- SetConfig(_KD, 1, %i)...", cmd);
+    if((status = device.SetConfig(_KD, 1, cmd)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  }
+
+  //Wait 10 ms before sending another command to device
+  // sleepms(20);
+
+  // cout<<"- GetConfig(_KD, 1)...";
+  // if((status = device.GetConfig(_KD, 1, result)) != RQ_SUCCESS)
+  //   cout<<"failed --> "<<status<<endl;
+  // else
+  //   cout<<"returned --> "<<result<<endl;
+}
+
+void setConfig(int cmd, int chnl, int param){
+  printf("- SetConfig(%i, %i, %i)...", cmd, chnl, param);
+  if((status = device.SetConfig(cmd, chnl, param)) != RQ_SUCCESS)
+    cout<<"failed --> "<<status<<endl;
+  else
+    cout<<"succeeded."<<endl;
+}
+
 int main(int argc, char **argv)
 {
-  /**
-   * The ros::init() function needs to see argc and argv so that it can perform
-   * any ROS arguments and name remapping that were provided at the command line. For programmatic
-   * remappings you can use a different version of init() which takes remappings
-   * directly, but for most command-line programs, passing argc and argv is the easiest
-   * way to do it.  The third argument to init() is the name of the node.
-   *
-   * You must call one of the versions of ros::init() before using any other
-   * part of the ROS system.
-   */
+
   ros::init(argc, argv, "spin_motors");
 
-  /**
-   * NodeHandle is the main access point to communications with the ROS system.
-   * The first NodeHandle constructed will fully initialize this node, and the last
-   * NodeHandle destructed will close down the node.
-   */
   ros::NodeHandle n;
 
   response = "";
@@ -68,40 +134,54 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  cout<<"- SetConfig(_MXRPM, 1, 500)...";
-  if((status = device.SetConfig(_MXRPM, 1, 500)) != RQ_SUCCESS)
-    cout<<"failed --> "<<status<<endl;
-  else
-    cout<<"succeeded."<<endl; 
+  // cout<<"Setting max RPM";
+  // setConfig(_MXRPM, 1, 500);
+  // //Wait 10 ms before sending another command to device
+  // sleepms(20);
+  // setConfig(_MXRPM, 2, 500);
+  // sleepms(20);
 
-  //Wait 10 ms before sending another command to device
-  sleepms(10);
+  // cout<<"Setting amp limit";
+  // setConfig(_ALIM, 1, 125);
+  // sleepms(20);
+  // setConfig(_ALIM, 2, 125);
+  // sleepms(20);
 
-  cout<<"- SetConfig(_MXRPM, 2, 500)...";
-  if((status = device.SetConfig(_MXRPM, 2, 500)) != RQ_SUCCESS)
-    cout<<"failed --> "<<status<<endl;
-  else
-    cout<<"succeeded."<<endl; 
+  // cout<<"Set feedback mode to hall sensors";
+  // setConfig(_BLFB,1,0);
+  // sleep(20);
+  // setConfig(_BLFB,2,0);
+  // sleep(20);
 
-  //Wait 10 ms before sending another command to device
-  sleepms(10);
+  // cout<<"Set number of poles";
+  // setConfig(_BPOL,1,30);
+  // sleep(20);
+  // setConfig(_BPOL,2,30);
+  // sleep(20);
 
-  /**
-   * The subscribe() call is how you tell ROS that you want to receive messages
-   * on a given topic.  This invokes a call to the ROS
-   * master node, which keeps a registry of who is publishing and who
-   * is subscribing.  Messages are passed to a callback function, here
-   * called chatterCallback.  subscribe() returns a Subscriber object that you
-   * must hold on to until you want to unsubscribe.  When all copies of the Subscriber
-   * object go out of scope, this callback will automatically be unsubscribed from
-   * this topic.
-   *
-   * The second parameter to the subscribe() function is the size of the message
-   * queue.  If messages are arriving faster than they are being processed, this
-   * is the number of messages that will be buffered up before beginning to throw
-   * away the oldest ones.
-   */
-  ros::Subscriber sub = n.subscribe("motor_speed", 1000, motorCallback);
+  // cout<<"Set encoder to feedback";
+  // setConfig(_EMOD,1,18);
+  // sleep(20);
+  // setConfig(_EMOD,2,34);
+  // sleep(20);
+
+  // cout<<"Set encoder PPR value";
+  // setConfig(_EPPR,1,1000);
+  // sleep(20);
+  // setConfig(_EPPR,2,1000);
+  // sleep(20);
+
+  // cout<<"Setting motor mode";
+  // setConfig(_MMOD,1,0);
+  // sleep(20);
+  // setConfig(_MMOD,2,0);
+  // sleep(20);
+
+  ros::Subscriber s_sub = n.subscribe("motor_speed", 1000, motorCallback);
+  ros::Subscriber p_sub = n.subscribe("p_value", 1000, PCallback);
+  ros::Subscriber i_sub = n.subscribe("i_value", 1000, ICallback);
+  ros::Subscriber d_sub = n.subscribe("d_value", 1000, DCallback);
+
 
   /**
    * ros::spin() will enter a loop, pumping callbacks.  With this version, all
