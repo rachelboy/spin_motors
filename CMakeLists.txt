@@ -20,3 +20,7 @@ add_library(roboteq_device src/RoboteqDevice.cpp)
 add_executable(spin_motors src/spin_motors.cpp)
 target_link_libraries(spin_motors roboteq_device ${catkin_LIBRARIES})
 add_dependencies(spin_motors ${catkin_EXPORTED_TARGETS})
+
+add_executable(velocities_to_controller src/velocities_to_controller.cpp)
+target_link_libraries(velocities_to_controller roboteq_device ${catkin_LIBRARIES})
+add_dependencies(velocities_to_controller ${catkin_EXPORTED_TARGETS})
