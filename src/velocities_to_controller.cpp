@@ -10,6 +10,7 @@
 #include "RoboteqDevice.h"
 #include "ErrorCodes.h"
 #include "Constants.h"
+#include "spin_motors/Encoder.h"
 
 using namespace std;
 
@@ -92,15 +93,27 @@ int main(int argc, char **argv)
 
   ros::Subscriber r_sub = n.subscribe("rwheel_vtarget", 1000, rightCallback);
   ros::Subscriber l_sub = n.subscribe("lwheel_vtarget", 1000, leftCallback);
+  ros::Publisher enc_pub = n.advertise<spin_motors::Encoder>("encoder_count_rel", 1000);
 
+  ros::Rate loop_rate(10);
 
-
-  /**
-   * ros::spin() will enter a loop, pumping callbacks.  With this version, all
-   * callbacks will be called from within this thread (the main one).  ros::spin()
-   * will exit when Ctrl-C is pressed, or the node is shutdown by the master.
-   */
-  ros::spin();
+  while(ros::ok()) {
+    int status;
+    int enc_r;
+    int enc_l;
+    if((status = device.GetValue(_CR, RIGHT, enc_r)) != RQ_SUCCESS)
+      cout<<"GetValue(_CR, 1) failed --> "<<status<<endl;
+    else if((status = device.GetValue(_CR, LEFT, enc_l)) != RQ_SUCCESS)
+      cout<<"GetValue(_CR, 2)failed --> "<<status<<endl;
+    else {
+      spin_motors::Encoder enc_msg;
+      enc_msg.right = enc_r;
+      enc_msg.left = enc_l;
+      enc_pub.publish(enc_msg);
+    }
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
 
   return 0;
 }
