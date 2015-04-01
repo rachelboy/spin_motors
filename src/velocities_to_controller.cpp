@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <string.h>
+#include <string>
 #include <math.h>
 
 #include "RoboteqDevice.h"
@@ -20,6 +20,8 @@ const int LEFT = 2;
 RoboteqDevice device;
 int status;
 string response;
+int max_motor_rpm;
+float wheel_circumfrence;
 
 void rightCallback(const std_msgs::Float32::ConstPtr&);
 void leftCallback(const std_msgs::Float32::ConstPtr&);
@@ -56,8 +58,6 @@ void leftCallback(const std_msgs::Float32::ConstPtr& msg) {
 
 int velToCmd(float vel) {
   // 0.1524 m is the diameter of the wheel
-  int max_motor_rpm = 5000;
-  float wheel_circumfrence = 3.1415926535*0.1524;
   float wheel_rpm = vel*60/wheel_circumfrence;
   float motor_rpm = wheel_rpm*10;
   // make sure we don't go over 100% or under -100%
@@ -90,6 +90,13 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  string max_motor_rpm_str; 
+  n.param<std::string>("max_motor_rpm",max_motor_rpm_str,"5000");
+  max_motor_rpm = atoi(max_motor_rpm_str.c_str());
+
+  string wheel_circumfrence_str;
+  n.param<std::string>("wheel_circumfrence",wheel_circumfrence_str,"0.47878");
+  wheel_circumfrence = atof(wheel_circumfrence_str.c_str());
 
   ros::Subscriber r_sub = n.subscribe("rwheel_vtarget", 1000, rightCallback);
   ros::Subscriber l_sub = n.subscribe("lwheel_vtarget", 1000, leftCallback);

@@ -31,8 +31,8 @@ class OdomCalculator():
         self.odom_frame_id = rospy.get_param('~odom_frame_id', 'odom')
 
         # constants
-        self.ticks_meter = 4*10000/(.1524*3.1415926) # 4*ppr/circumference
-        self.base_width = 1
+        self.ticks_meter = float(rospy.get_param('~ticks_meter', 4*10000/(.1524*3.1415926))) # 4*ppr/circumference
+        self.base_width = float(rospy.get_param('~base_width', .508))
 
         # things that do things
         self.encoderSub = rospy.Subscriber('encoder_count_rel', Encoder, self.calc_odom)
