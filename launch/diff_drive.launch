@@ -6,5 +6,5 @@
     <!-- timeout ticks should be much lower than this, but we're setting it high for testing -->
     <param name="~timeout_ticks" value="10000.0"/>
     <node pkg="differential_drive" name="differential_drive" type="twist_to_motors.py"/>
-    <!-- <node pkg="differential_drive" name="virtual_joystick" type="virtual_joystick.py"/> -->
+    <node pkg="differential_drive" name="virtual_joystick" type="virtual_joystick.py"/>
 </launch>

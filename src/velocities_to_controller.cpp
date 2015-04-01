@@ -55,7 +55,7 @@ void leftCallback(const std_msgs::Float32::ConstPtr& msg) {
 
 int velToCmd(float vel) {
   // 0.1524 m is the diameter of the wheel
-  int max_motor_rpm = 580;
+  int max_motor_rpm = 5000;
   float wheel_circumfrence = 3.1415926535*0.1524;
   float wheel_rpm = vel*60/wheel_circumfrence;
   float motor_rpm = wheel_rpm*10;
