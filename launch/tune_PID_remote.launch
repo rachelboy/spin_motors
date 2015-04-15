@@ -1,4 +1,5 @@
 <launch>
     <node pkg="differential_drive" name="virtual_joystick" type="virtual_joystick.py"/>
+    <node pkg="spin_motors" name="tune_PID" type="tune_PID.py" output="screen"/>
     <node pkg="xbee_comms" name="remote_estop" type="remote_estop.py" respawn="true"/>
 </launch>

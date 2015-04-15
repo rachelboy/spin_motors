@@ -1,0 +1,11 @@
+<launch>
+    <!-- Assuming base_width in is meters -->
+    <param name="~base_width" value="1.0"/>
+    <!-- Rate should be set by the larger system, but we'll do it here for now -->
+    <param name="~rate" value="8.0"/>
+    <!-- timeout ticks should be much lower than this, but we're setting it high for testing -->
+    <param name="~timeout_ticks" value="10000.0"/>
+    <node pkg="differential_drive" name="differential_drive" type="twist_to_motors.py"/>
+    <node pkg="spin_motors" name="adjustable_PID_controller" type="adjustable_PID_controller" respawn="true"/>
+    <node pkg="spin_motor" name="republish_odom" type="republish_odom.py"/>
+</launch>
