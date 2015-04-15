@@ -33,3 +33,7 @@ add_dependencies(spin_motors ${catkin_EXPORTED_TARGETS})
 add_executable(velocities_to_controller src/velocities_to_controller.cpp)
 target_link_libraries(velocities_to_controller roboteq_device ${catkin_LIBRARIES})
 add_dependencies(velocities_to_controller ${catkin_EXPORTED_TARGETS})
+
+add_executable(adjustable_PID_controller src/adjustable_PID_controller.cpp)
+target_link_libraries(adjustable_PID_controller roboteq_device ${catkin_LIBRARIES})
+add_dependencies(adjustable_PID_controller ${catkin_EXPORTED_TARGETS})

@@ -1,3 +1,4 @@
 <launch>
     <node pkg="differential_drive" name="virtual_joystick" type="virtual_joystick.py"/>
+    <node pkg="xbee_comms" name="remote_estop" type="remote_estop.py"/>
 </launch>
