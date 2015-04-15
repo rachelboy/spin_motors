@@ -82,7 +82,9 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   response = "";
-  status = device.Connect("/dev/ttyACM0");
+  string port_handle;
+  n.param<std::string>("mc_port",port_handle,"/dev/ttyACM0");
+  status = device.Connect(port_handle);
 
   if(status != RQ_SUCCESS)
   {
