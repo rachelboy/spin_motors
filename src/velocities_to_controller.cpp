@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/Int64.h"
 #include "std_msgs/Float32.h"
+#include "std_msgs/Bool.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -14,29 +15,40 @@
 
 using namespace std;
 
-const int RIGHT = 1;
-const int LEFT = 2;
+const int RIGHT = 2;
+const int LEFT = 1;
 
 RoboteqDevice device;
 int status;
 string response;
 int max_motor_rpm;
 float wheel_circumfrence;
+bool estop = false;
 
 void rightCallback(const std_msgs::Float32::ConstPtr&);
 void leftCallback(const std_msgs::Float32::ConstPtr&);
+void estopCallback(const std_msgs::Bool::ConstPtr&);
 int velToCmd(float);
 void setConfig(int, int, int);
 
 
 void rightCallback(const std_msgs::Float32::ConstPtr& msg) {
-  float vel = msg->data;
-  int cmd = velToCmd(vel);
-  printf("- SetCommand(_GO, RIGHT, %i)...", cmd);
-  if((status = device.SetCommand(_GO, RIGHT, cmd)) != RQ_SUCCESS)
-    cout<<"failed --> "<<status<<endl;
-  else
-    cout<<"succeeded."<<endl;
+  if(!estop) {
+    float vel = msg->data;
+    int cmd = velToCmd(vel);
+    printf("- SetCommand(_GO, RIGHT, %i)...", cmd);
+    if((status = device.SetCommand(_GO, RIGHT, cmd)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  } else {
+    printf("- SetCommand(_GO, RIGHT, 0)...");
+    if((status = device.SetCommand(_GO, RIGHT, 0)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  }
+  
 
   // int result;
   // cout<<"- GetValue(_BLSPEED, 1)...";
@@ -47,13 +59,26 @@ void rightCallback(const std_msgs::Float32::ConstPtr& msg) {
 }
 
 void leftCallback(const std_msgs::Float32::ConstPtr& msg) {
-  float vel = msg->data;
-  int cmd = velToCmd(vel);
-  printf("- SetCommand(_GO, LEFT, %i)...", cmd);
-  if((status = device.SetCommand(_GO, LEFT, cmd)) != RQ_SUCCESS)
-    cout<<"failed --> "<<status<<endl;
-  else
-    cout<<"succeeded."<<endl;
+  if(!estop){
+    float vel = msg->data;
+    int cmd = velToCmd(vel);
+    printf("- SetCommand(_GO, LEFT, %i)...", cmd);
+    if((status = device.SetCommand(_GO, LEFT, cmd)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  } else {
+    printf("- SetCommand(_GO, LEFT, 0)...");
+    if((status = device.SetCommand(_GO, LEFT, 0)) != RQ_SUCCESS)
+      cout<<"failed --> "<<status<<endl;
+    else
+      cout<<"succeeded."<<endl;
+  }
+  
+}
+
+void estopCallback(const std_msgs::Bool::ConstPtr& msg) {
+  estop = msg->data;
 }
 
 int velToCmd(float vel) {
@@ -102,6 +127,7 @@ int main(int argc, char **argv)
 
   ros::Subscriber r_sub = n.subscribe("rwheel_vtarget", 1000, rightCallback);
   ros::Subscriber l_sub = n.subscribe("lwheel_vtarget", 1000, leftCallback);
+  ros::Subscriber estop_sub = n.subscribe("estop", 1000, estopCallback);
   ros::Publisher enc_pub = n.advertise<spin_motors::Encoder>("encoder_count_rel", 1000);
 
   ros::Rate loop_rate(10);
