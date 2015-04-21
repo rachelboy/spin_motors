@@ -14,8 +14,8 @@
 
 using namespace std;
 
-const int RIGHT = 1;
-const int LEFT = 2;
+const int RIGHT = 2;
+const int LEFT = 1;
 
 RoboteqDevice device;
 int status;
@@ -48,7 +48,7 @@ void rightCallback(const std_msgs::Float32::ConstPtr& msg) {
 
 void leftCallback(const std_msgs::Float32::ConstPtr& msg) {
   float vel = msg->data;
-  int cmd = velToCmd(vel);
+  int cmd = -1*velToCmd(vel);
   printf("- SetCommand(_GO, LEFT, %i)...", cmd);
   if((status = device.SetCommand(_GO, LEFT, cmd)) != RQ_SUCCESS)
     cout<<"failed --> "<<status<<endl;
