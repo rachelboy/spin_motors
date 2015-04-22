@@ -24,11 +24,7 @@ catkin_package(CATKIN_DEPENDS message_runtime)
 ## Build listener
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_library(roboteq_device src/RoboteqDevice.cpp)
-
-add_executable(spin_motors src/spin_motors.cpp)
-target_link_libraries(spin_motors roboteq_device ${catkin_LIBRARIES})
-add_dependencies(spin_motors ${catkin_EXPORTED_TARGETS})
+add_library(roboteq_device src/roboteq_code/RoboteqDevice.cpp)
 
 add_executable(velocities_to_controller src/velocities_to_controller.cpp)
 target_link_libraries(velocities_to_controller roboteq_device ${catkin_LIBRARIES})
