@@ -36,17 +36,17 @@ void rightCallback(const std_msgs::Float32::ConstPtr& msg) {
   if(!estop) {
     float vel = msg->data;
     int cmd = velToCmd(vel);
-    printf("- SetCommand(_GO, RIGHT, %i)...", cmd);
+    // printf("- SetCommand(_GO, RIGHT, %i)...", cmd);
     if((status = device.SetCommand(_GO, RIGHT, cmd)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    else
-      cout<<"succeeded."<<endl;
+    // else
+      // cout<<"succeeded."<<endl;
   } else {
-    printf("- SetCommand(_GO, RIGHT, 0)...");
+    // printf("- SetCommand(_GO, RIGHT, 0)...");
     if((status = device.SetCommand(_GO, RIGHT, 0)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    else
-      cout<<"succeeded."<<endl;
+    // else
+      // cout<<"succeeded."<<endl;
   }
   
 
@@ -62,17 +62,17 @@ void leftCallback(const std_msgs::Float32::ConstPtr& msg) {
   if(!estop){
     float vel = msg->data;
     int cmd = -1*velToCmd(vel);
-    printf("- SetCommand(_GO, LEFT, %i)...", cmd);
+    // printf("- SetCommand(_GO, LEFT, %i)...", cmd);
     if((status = device.SetCommand(_GO, LEFT, cmd)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    else
-      cout<<"succeeded."<<endl;
+    // else
+      // cout<<"succeeded."<<endl;
   } else {
-    printf("- SetCommand(_GO, LEFT, 0)...");
+    // printf("- SetCommand(_GO, LEFT, 0)...");
     if((status = device.SetCommand(_GO, LEFT, 0)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    else
-      cout<<"succeeded."<<endl;
+    // else
+      // cout<<"succeeded."<<endl;
   }
 }
 
