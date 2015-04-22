@@ -7,5 +7,5 @@
     <param name="~timeout_ticks" value="10000.0"/>
     <node pkg="differential_drive" name="differential_drive" type="twist_to_motors.py"/>
     <node pkg="spin_motors" name="velocities_to_controller" type="velocities_to_controller" respawn="true"/>
-    <node pkg="spin_motor" name="republish_odom" type="republish_odom.py"/>
+    <node pkg="spin_motors" name="republish_odom" type="republish_odom.py"/>
 </launch>
