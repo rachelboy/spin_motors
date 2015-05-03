@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 
   response = "";
   string port_handle;
-  n.param<std::string>("mc_port",port_handle,"/dev/ttyACM1");
+  n.param<std::string>("mc_port",port_handle,"/dev/roboteq");
   status = device.Connect(port_handle);
 
   if(status != RQ_SUCCESS)
