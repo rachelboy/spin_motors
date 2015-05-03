@@ -8,21 +8,21 @@
 #include <string>
 #include <math.h>
 
-#include "RoboteqDevice.h"
-#include "ErrorCodes.h"
-#include "Constants.h"
+#include "roboteq_code/RoboteqDevice.h"
+#include "roboteq_code/ErrorCodes.h"
+#include "roboteq_code/Constants.h"
 #include "spin_motors/Encoder.h"
 
 using namespace std;
 
+// define motor mapping
 const int RIGHT = 2;
 const int LEFT = 1;
 
 RoboteqDevice device;
 int status;
-string response;
-int max_motor_rpm;
-float wheel_circumfrence;
+int max_motor_rpm; // set in main(), with rosparam
+float wheel_circumfrence; // set in main(), with rosparam
 bool estop = false;
 
 void rightCallback(const std_msgs::Float32::ConstPtr&);
@@ -33,46 +33,47 @@ void setConfig(int, int, int);
 
 
 void rightCallback(const std_msgs::Float32::ConstPtr& msg) {
-  if(!estop) {
+  /*
+  set the right motor speed
+  */
+  if(!estop) { // if the estop is not engaged
     float vel = msg->data;
-    int cmd = velToCmd(vel);
-    // printf("- SetCommand(_GO, RIGHT, %i)...", cmd);
+    int cmd = velToCmd(vel); // translate velocity to motor command
+    printf("- SetCommand(_GO, RIGHT, %i)...", cmd);
     if((status = device.SetCommand(_GO, RIGHT, cmd)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    // else
-      // cout<<"succeeded."<<endl;
+    else
+      cout<<"succeeded."<<endl;
   } else {
-    // printf("- SetCommand(_GO, RIGHT, 0)...");
+    // if the estop is engaged, set speed to 0
+    printf("- SetCommand(_GO, RIGHT, 0)...");
     if((status = device.SetCommand(_GO, RIGHT, 0)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    // else
-      // cout<<"succeeded."<<endl;
+    else
+      cout<<"succeeded."<<endl;
   }
-  
-
-  // int result;
-  // cout<<"- GetValue(_BLSPEED, 1)...";
-  // if((status = device.GetValue(_BLSPEED, 1, result)) != RQ_SUCCESS)
-  //   cout<<"failed --> "<<status<<endl;
-  // else
-  //   cout<<"returned --> "<<result<<endl;
 }
 
 void leftCallback(const std_msgs::Float32::ConstPtr& msg) {
-  if(!estop){
+  /* 
+  set the left motor speed
+  */
+  if(!estop){ // if the estop is not engaged
     float vel = msg->data;
+    // translate velocity to motor command, and reverse it b/c motor is reversed
     int cmd = -1*velToCmd(vel);
-    // printf("- SetCommand(_GO, LEFT, %i)...", cmd);
+    printf("- SetCommand(_GO, LEFT, %i)...", cmd);
     if((status = device.SetCommand(_GO, LEFT, cmd)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    // else
-      // cout<<"succeeded."<<endl;
+    else
+      cout<<"succeeded."<<endl;
   } else {
-    // printf("- SetCommand(_GO, LEFT, 0)...");
+    // if the estop is engaged, set speed to 0
+    printf("- SetCommand(_GO, LEFT, 0)...");
     if((status = device.SetCommand(_GO, LEFT, 0)) != RQ_SUCCESS)
       cout<<"failed --> "<<status<<endl;
-    // else
-      // cout<<"succeeded."<<endl;
+    else
+      cout<<"succeeded."<<endl;
   }
 }
 
@@ -81,7 +82,12 @@ void estopCallback(const std_msgs::Bool::ConstPtr& msg) {
 }
 
 int velToCmd(float vel) {
-  // 0.1524 m is the diameter of the wheel
+  /* 
+  translate wheel velocity to the motor speed command
+  roboteq takes speed commands as a percentage of the maximum speed
+  So, 500 would be 50% maximum speed
+  -500 would be 50% maximum speed, but in reverse
+  */
   float wheel_rpm = vel*60/wheel_circumfrence;
   float motor_rpm = wheel_rpm*10;
   // make sure we don't go over 100% or under -100%
@@ -102,10 +108,9 @@ int main(int argc, char **argv)
 {
 
   ros::init(argc, argv, "spin_motors");
-
   ros::NodeHandle n;
 
-  response = "";
+  // open a connection to the roboteq
   string port_handle;
   n.param<std::string>("mc_port",port_handle,"/dev/roboteq");
   status = device.Connect(port_handle);
@@ -116,10 +121,12 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  // set the maximum motor rpm (motor_rpm = 10*wheel_rpm)
   string max_motor_rpm_str; 
   n.param<std::string>("max_motor_rpm",max_motor_rpm_str,"5000");
   max_motor_rpm = atoi(max_motor_rpm_str.c_str());
 
+  // set the wheel circumference in meters
   string wheel_circumfrence_str;
   n.param<std::string>("wheel_circumfrence",wheel_circumfrence_str,"0.47878");
   wheel_circumfrence = atof(wheel_circumfrence_str.c_str());
@@ -129,16 +136,17 @@ int main(int argc, char **argv)
   ros::Subscriber estop_sub = n.subscribe("estop", 1000, estopCallback);
   ros::Publisher enc_pub = n.advertise<spin_motors::Encoder>("encoder_count_rel", 1000);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(15);
 
+  int resp;
+  int enc_r;
+  int enc_l;
   while(ros::ok()) {
-    int status;
-    int enc_r;
-    int enc_l;
-    if((status = device.GetValue(_CR, RIGHT, enc_r)) != RQ_SUCCESS)
-      cout<<"GetValue(_CR, 1) failed --> "<<status<<endl;
-    else if((status = device.GetValue(_CR, LEFT, enc_l)) != RQ_SUCCESS)
-      cout<<"GetValue(_CR, 2)failed --> "<<status<<endl;
+    // get change in right and left encoder counts and publish it
+    if((resp = device.GetValue(_CR, RIGHT, enc_r)) != RQ_SUCCESS)
+      cout<<"GetValue(_CR, 1) failed --> "<<resp<<endl;
+    else if((resp = device.GetValue(_CR, LEFT, enc_l)) != RQ_SUCCESS)
+      cout<<"GetValue(_CR, 2)failed --> "<<resp<<endl;
     else {
       spin_motors::Encoder enc_msg;
       enc_msg.right = enc_r;

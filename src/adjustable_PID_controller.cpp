@@ -7,9 +7,9 @@
 #include <string>
 #include <math.h>
 
-#include "RoboteqDevice.h"
-#include "ErrorCodes.h"
-#include "Constants.h"
+#include "roboteq_code/RoboteqDevice.h"
+#include "roboteq_code/ErrorCodes.h"
+#include "roboteq_code/Constants.h"
 #include "spin_motors/Encoder.h"
 
 using namespace std;
